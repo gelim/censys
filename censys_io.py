@@ -234,7 +234,7 @@ def conf_get_censys_api(args):
     # warn that apparently nothing worked
     print "You need to give API id and secret either through environment variables with:"
     print "  export CENSYS_API_ID=xxxx; export CENSYS_API_SECRET=yyyy"
-    print "or by giving command-line arguments '--api_id xxx' AND '--api_key yyyy'"
+    print "or by giving command-line arguments '--api_id xxx' AND '--api_secret yyyy'"
     print
     sys.exit(-2)
 
