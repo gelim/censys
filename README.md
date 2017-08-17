@@ -2,15 +2,17 @@ Python code to query the Censys public scan database.
 This script is made around library censys-python (https://github.com/Censys/censys-python)
 and is inteded to make censys queries quick & easy from command-line.
 
-  * [Requirements](#requirements)
-  * [Usage](#usage)
-  * [Example of use](#example-of-use)
-    + [Generic query IP or host (look for anything matching the string in Censys indexed data)](#generic-query-ip-or-host-look-for-anything-matching-the-string-in-censys-indexed-data)
-    + [Count how much web servers have 'SAP' in their Server header](#count-how-much-web-servers-have-sap-in-their-server-header)
-    + [Retrieve the hosts that have SSL certificate with organization 'Whatsapp'](#retrieve-the-hosts-that-have-ssl-certificate-with-organization-whatsapp)
-- [Listing example of fields we only want to dump in the records](#listing-example-of-fields-we-only-want-to-dump-in-the-records)
-    + [Export scanned page content with title "Pastebin" and are located in the US to disk](#export-scanned-page-content-with-title-pastebin-and-are-located-in-the-us-to-disk)
-    + [Use tags provided by censys scanner to look at interesting servers](#use-tags-provided-by-censys-scanner-to-look-at-interesting-servers)
+- [Requirements](#requirements)
+- [Usage](#usage)
+- [Examples](#examples)
+  * [Generic query IP or host (look for anything matching the string in Censys indexed data)](#generic-query-ip-or-host-look-for-anything-matching-the-string-in-censys-indexed-data)
+  * [Count how much web servers have 'SAP' in their `Server` header](#count-how-much-web-servers-have-sap-in-their-server-header)
+  * [Get geo reparition of server with 'ABAP' in their `Server` header](#get-geo-reparition-of-server-with-abap-in-their-server-header)
+  * [Retrieve the hosts that have SSL certificate with organization 'Whatsapp'](#retrieve-the-hosts-that-have-ssl-certificate-with-organization-whatsapp)
+  * [Printing raw JSON record from database for a specific request](#printing-raw-json-record-from-database-for-a-specific-request)
+  * [Listing example of fields we only want to dump in the records](#listing-example-of-fields-we-only-want-to-dump-in-the-records)
+  * [Export to disk sites frontpage containing "Hacked by" in their title](#export-to-disk-sites-frontpage-containing-hacked-by-in-their-title)
+  * [Use tags provided by censys scanner to look at servers that need to be secured](#use-tags-provided-by-censys-scanner-to-look-at-servers-that-need-to-be-secured)
 
 ## Requirements
 
