@@ -13,6 +13,7 @@ import argparse
 import pickle
 import time, sys, re, os
 
+
 # API is time limited
 # 0.2 tokens/second (60.0 per 5 minute)
 report_buckets=50
@@ -30,10 +31,13 @@ filter_fields = ['location.country', 'location.country_code', 'location.city', '
                  'metadata.os', 'tags']
 report_fields = ['location.country_code', 'location.country.raw', 'ip', \
                  'autonomous_system.asn', 'autonomous_system.organization.raw', \
+                 'autonomous_system.description.raw', \
                  '443.https.tls.certificate.parsed.subject.common_name.raw', \
                  '993.imaps.tls.tls.certificate.parsed.subject.common_name.raw', \
                  '80.http.get.headers.server.raw', \
+                 "80.http.get.title.raw", \
                  'metadata.os.raw', 'protocols', 'tags.raw']
+
 # computed from --country US --report tags.raw
 tags_available = ['http', 'https', 'ssh', 'ftp', 'smtp', 'pop3', 'imap', 'imaps', 'pop3s',
                   'known-private-key', 'rsa-export', 'dhe-export', 'Update utility',
@@ -45,48 +49,92 @@ tags_available = ['http', 'https', 'ssh', 'ftp', 'smtp', 'pop3', 'imap', 'imaps'
 help_desc='''
 Censys query via command line
 
-
 -- gelim
 '''
+
+# 11.07.2017: not anymore used with new API, yeah!
+# res: input dict
+# key: full dotted key path like '80.http.get.title'
+# returns if it exists the value, else 'N/A'
+#def get_subkey(dic, key, default):
+#    keys_l = key.split('.')
+#    val = str()
+#    for k in keys_l:
+#        if dic != None:
+#            dic = dic.get(k)
+#        else:
+#            return default
+#    if dic == None:
+#        return default
+#    else:
+#        if isinstance(dic, list):
+#            return ','.join(dic)
+#        return str(dic)
+
+
+def print_tsv(res):
+    bl_filter_fields = ["80.http.get.body"]
+    final_line = str()
+    for k in filter_fields:
+        if k not in bl_filter_fields:
+            v = res.get(k, "")
+            if isinstance(v, list):
+                v = ','.join(v)
+            if isinstance(v, int):
+                v = str(v)
+            if ';' in v: v = v.replace('\t', ' ')
+            final_line += v + "\t"
+    print final_line.strip("\t")
 
 # res = complete dict from IPv4 search with generic info
 def print_short(res):
     max_title_len = 50
     title_head = 'Title: '
     cut = '[...]'
-    http_title = res.get('80.http.get.title', ['N/A'])[0]
-    cert_name = res.get('443.https.tls.certificate.parsed.subject.common_name', [''])[0]
-    cert_alt = res.get('443.https.tls.certificate.parsed.extensions.subject_alt_name.dns_names', [''])[0]
-    as_name = res.get('autonomous_system.name', ['N/A'])[0]
-    as_num = res.get('autonomous_system.asn', [''])[0]
-    loc = '%s / %s' % (res.get('location.country_code', ['N/A'])[0], res.get('location.city', ['N/A'])[0])
-    os = res.get('metadata.os', ['N/A'])[0]
-    tags = res.get('tags', [])
+    http_title = res.get('80.http.get.title', 'N/A')
+    cert_name = res.get('443.https.tls.certificate.parsed.subject.common_name', '')
+    cert_alt = res.get('443.https.tls.certificate.parsed.extensions.subject_alt_name.dns_names', '')
+    as_name = res.get('autonomous_system.name', 'N/A')
+    as_num = res.get('autonomous_system.asn', '')
+    loc = '%s / %s' % (res.get('location.country_code', 'N/A'), res.get('location.city', 'N/A'))
+    os = res.get('metadata.os', 'N/A')
+    tags = res.get('tags', '')
+    ip = res.get('ip', 'N/A')
 
     http_title = http_title.replace('\n', '\\n')
     http_title = http_title.replace('\r', '\\r')
-    # do some destructive encoding to ascii
+
+    # quick cleanup of list values, atm just show the first element
+    # or the first followed with a "+" sign to indicate there are more
+    if isinstance(cert_name, list):
+        if len(cert_name) > 1: cert_name = cert_name[0] + "+"
+        else: cert_name = cert_name[0]
+    if isinstance(cert_alt, list):
+        if len(cert_alt) > 1: cert_alt = cert_alt[0] + "+"
+        else: cert_alt = cert_alt[0]
+    
+    # do some destructive encoding to UTF-8
     http_title = unicode(http_title.encode('UTF-8'), errors='ignore')
     cert_name = unicode(cert_name.encode('UTF-8'), errors='ignore')
     cert_alt = unicode(cert_alt.encode('UTF-8'), errors='ignore')
-    tags = [ unicode(t.encode('UTF-8'), errors='ignore') for t in tags]
+    tags = ', '.join([ unicode(t.encode('UTF-8'), errors='ignore') for t in tags ])
     as_name = unicode(as_name.encode('UTF-8'), errors='ignore')
     os = unicode(os.encode('UTF-8'), errors='ignore')
     loc = unicode(loc.encode('UTF-8'), errors='ignore')
 
-    if cert_alt != '':
+    if cert_alt != '' and cert_alt != cert_name:
         cert_name = cert_name + ' + ' + cert_alt
 
     # shortun title if too long
     if len(http_title) > (max_title_len - len(title_head) - 1):
         http_title = http_title[:max_title_len - len(title_head) - len(cut) - 1] + cut
-    print res['ip'].ljust(16) + \
+    print ip.ljust(16) + \
         ((title_head + '%s') % http_title).ljust(max_title_len) + \
         ('SSL: %s' % cert_name).ljust(50) + \
         ('AS: %s (%s)' % (as_name,as_num)).ljust(40) + \
         ('Loc: %s' % loc).ljust(30) + \
         ('OS: %s' % os).ljust(15) + \
-        ('Tags: %s' % ', '.join(tags))
+        ('Tags: %s' % tags)
 
 def print_match(res, m):
     for k in res.keys():
@@ -94,30 +142,44 @@ def print_match(res, m):
     print
 
 
-def print_report(res):
+def print_report(res, key):
     r = res['results']
+    print "count".ljust(10) + "\t" + key.split(".")[-1]
     for e in r:
-        print ("%d" % e['doc_count']).ljust(10) + str(e['key']).ljust(30)
+        print ("%d" % e['doc_count']).ljust(10) + "\t" + unicode(e['key']).ljust(30)
 
 def build_query_string(args):
     if len(args.arguments) == 0:
         s = '*'
     else:
-        s = args.arguments[0]
+        s = "(" + args.arguments[0] + ")"
     if args.tags:
-        s += " AND tags:%s" % args.tags
+        if ',' in args.tags:
+            tags_l = args.tags.split(',')
+            tags_q = " AND tags:" + " AND tags:".join(tags_l)
+        else:
+            tags_q = " AND tags:%s" % args.tags
+        s += tags_q
+    if args.asn:
+        s += " AND autonomous_system.asn:%s" % args.asn
     if args.cert_org:
-        s += " AND 443.https.tls.certificate.parsed.subject.organization:\"%s\"" % args.cert_org
+        s += " AND 443.https.tls.certificate.parsed.subject.organization:%s" % args.cert_org
     if args.cert_issuer:
-        s += " AND 443.https.tls.certificate.parsed.issuer.organization:\"%s\"" % args.cert_issuer
+        s += " AND 443.https.tls.certificate.parsed.issuer.organization:%s" % args.cert_issuer
     if args.cert_host:
-        s += " AND 443.https.tls.certificate.parsed.subject.common_name:\"%s\"" % args.cert_host
+        s += " AND 443.https.tls.certificate.parsed.subject.common_name:%s" % args.cert_host
     if args.country:
         s += " AND location.country_code:%s" % args.country
     if args.http_server:
-        s += " AND 80.http.get.headers.server:\"%s\"" % args.http_server
+        s += " AND 80.http.get.headers.server:%s" % args.http_server
     if args.html_title:
-        s += " AND 80.http.get.title:\"%s\"" % args.html_title
+        if " " in args.html_title: title = "\"%s\"" % args.html_title
+        else: title = args.html_title
+        s += " AND 80.http.get.title:%s" % title
+    if args.html_body:
+        if " " in args.html_body: body = "\"%s\"" % args.html_body
+        else: body = args.html_body
+        s += " AND 80.http.get.body:%s" % body
     if args.debug:
         print 'Query: %s' % s
     return s
@@ -200,7 +262,7 @@ def dump_html_to_file(d, rec):
     html = rec.get('80.http.get.body')
     if html:
         filename = "%s/%s.html" % (d, rec['ip'])
-        open(filename, "w").write(html[0].encode('UTF-8'))
+        open(filename, "w").write(html.encode('UTF-8', errors='ignore'))
 
 def conf_get_censys_api(args):
     conf_file = "%s/.censys.p" % os.environ.get('HOME')
@@ -244,14 +306,17 @@ if __name__ == '__main__':
     parser.add_argument('-f', '--filter', default=None, help='Filter the JSON keys to display for each result (use value \'help\' for interesting fields)')
     parser.add_argument('--count', action='store_true', help='Print the count result and exit')
     parser.add_argument('-r', '--report', default=None, help='Stats on given field (use value \'help\' for listing interesting fields)')
+    parser.add_argument('-B', '--report_bucket', default=report_buckets, help='Bucket len in report mode (default: %s)' % report_buckets)
     # query filter shortcuts
+    parser.add_argument('-a', '--asn', default=None, help='Filter with ASN (ex: 25408 for Westcall-SPB AS)')
     parser.add_argument('-c', '--country', default=None, help='Filter with country')
     parser.add_argument('-o', '--cert-org', default=None, help='Cert issued to org')
     parser.add_argument('-i', '--cert-issuer', default=None, help='Cert issued by org')
     parser.add_argument('-s', '--cert-host', default=None, help='hostname cert is issued to')
     parser.add_argument('-S', '--http-server', default=None, help='Server header')
     parser.add_argument('-t', '--html-title', default=None, help='Filter on html page title')
-    parser.add_argument('-T', '--tags', default=None, help='Filter on specific tags (use keyword \'list\' to list usual tags')
+    parser.add_argument('-b', '--html-body', default=None, help='Filter on html body content')
+    parser.add_argument('-T', '--tags', default=None, help='Filter on specific tags. E.g: -T tag1,tag2,... (use keyword \'list\' to list usual tags')
 
     parser.add_argument('--api_id', default=None, help='Censys API ID (optional if no env defined')
     parser.add_argument('--api_secret', default=None, help='Censys API SECRET (optional if no env defined')
@@ -259,6 +324,7 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--verbose', action='store_true', help='Print raw JSON records')
     parser.add_argument('-l', '--limit', default=float('inf'), help='Limit to N results')
     parser.add_argument('-H', '--html', action='store_true', help='Renders html elements in a browser')
+    parser.add_argument('--tsv', action='store_true', help='Export result of search in TSV format')
     parser.add_argument('arguments', metavar='arguments', nargs='*', help='Censys query')
     args = parser.parse_args()
     match = unicode(args.match)
@@ -274,6 +340,9 @@ if __name__ == '__main__':
         pprint(filter_fields)
         sys.exit(0)
 
+    if args.report_bucket:
+        report_buckets = args.report_bucket
+
     # handle API key/secret
     api = conf_get_censys_api(args)
 
@@ -283,7 +352,9 @@ if __name__ == '__main__':
 
     # count the number of results
     try:
-        count =  q.report(s, 'ip')['metadata']['count']
+        # they changed something, "ip" don't work anymore
+        # so I selecte a (random) field that should always exists
+        count =  q.report(s, "updated_at")['metadata']['count']
     except CensysException as e:
         print e.message
         sys.exit(-1)
@@ -295,8 +366,8 @@ if __name__ == '__main__':
         except CensysException as e:
             print e.message
             sys.exit(-1)
-        print "Number of results: %d" % count
-        print_report(r)
+        sys.stderr.write("Number of results: %d\n" % count)
+        print_report(r, args.report)
         sys.exit(0)
 
     # count the numbmer of results
@@ -304,7 +375,7 @@ if __name__ == '__main__':
         print count
         sys.exit(0)
     else:
-        print "Number of results: %d" % count
+        sys.stderr.write("Number of results: %d\n" % count)
 
     # prepare temp dir for html files
     if args.html:
@@ -316,15 +387,20 @@ if __name__ == '__main__':
     if args.filter: filter_fields = args.filter.split(',')
     r = q.search(s, fields=filter_fields)
     i = 0
+    if args.tsv:
+        print '\t'.join(filter_fields)
     for e in r:
         if i >= float(args.limit):
             break
         if args.verbose:
             pprint(q.view(e['ip']))
         elif args.filter:
-            pprint(e)
+            print e # FIXME: by default we dump raw JSON if filters are used
         else:
-            print_short(e)
+            if args.tsv:
+                print_tsv(e)
+            else:
+                print_short(e)
             if args.html: dump_html_to_file(htmldir, e)
             if match != 'None': print_match(q.view(e['ip']), match)
         i += 1
