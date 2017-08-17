@@ -210,7 +210,7 @@ Number of results: 1
  u'updated_at': u'2016-06-02T06:50:30+00:00'}
 ```
 
-# Listing example of fields we only want to dump in the records
+### Listing example of fields we only want to dump in the records
 
 ```
 $ censys_io.py -f list
@@ -260,7 +260,7 @@ Number of results: 1044
 129.121.106.11  Title:  HaCked By virus3033                       SSL:                                              AS: NEXCESS-NET (36444)                 Loc: US / Redwood City        OS: N/A        Tags: ftp, http
 ```
 
-We then can browse '/tmp/tmpx5HjqB' like in ![](doc/html_body.png)
+We then can browse `/tmp/tmpx5HjqB` like in ![](doc/html_body.png)
 
 Content is available in key '80.http.get.body' and saved to disk for
 offline analysis.  **Beware** of malicious content that could be
@@ -272,14 +272,14 @@ on disk.
 ```
 $ censys_io.py --tags heartbleed --report location.country.raw
 Number of results: 213034
-46565     United States                 
-26009     China                         
-12383     Germany                       
-8138      India                         
-8004      Russia                        
-6471      United Kingdom                
-6111      France                        
-5817      Italy                         
-5387      Republic of Korea             
+46565     United States
+26009     China
+12383     Germany
+8138      India
+8004      Russia
+6471      United Kingdom
+6111      France
+5817      Italy
+5387      Republic of Korea
 5257      Japan
 ```
