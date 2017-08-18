@@ -14,9 +14,9 @@ and is inteded to make censys queries quick & easy from command-line.
   * [Listing example of fields we only want to dump in the records](#listing-example-of-fields-we-only-want-to-dump-in-the-records)
   * [Export to disk sites frontpage containing "Hacked by" in their title](#export-to-disk-sites-frontpage-containing-hacked-by-in-their-title)
   * [Use tags provided by censys scanner to look at servers that need to be secured](#use-tags-provided-by-censys-scanner-to-look-at-servers-that-need-to-be-secured)
+- [But what the heck, you want to hack the planet?!](#but-what-the-heck-you-want-to-hack-the-planet)
 
 ## Requirements
-
 
 You need to create an account on https://censys.io and get your
 API key and secret at https://censys.io/account
@@ -27,7 +27,6 @@ What is allowed is 0.2 tokens/second (60.0 per 5 minute bucket).
 `$ sudo pip install -r requirements.txt`
 
 ## Usage
-
 
 ``` bash
 $ censys_io.py --help
@@ -313,3 +312,11 @@ Number of results: 213034
 5387      Republic of Korea
 5257      Japan
 ```
+
+## But what the heck, you want to hack the planet?!
+
+Well, I use this great OSINT source for my assignments sometime when I
+want to show the client his internet exposure, or for bug bounties to
+do landscape discovery. This is as well a good example to show that
+port scanning is not evil and help to increase security posture
+awareness.
