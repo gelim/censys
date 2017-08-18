@@ -177,6 +177,33 @@ count           raw
 16              Spain
 ```
 
+### Filter hosts by their HTML title
+
+This is a very cool feature, but unfortunately works only for tcp/80
+scans. They don't store http content on https scans.
+
+```
+$ censys_io.py --title "IVRE Web UI"
+Number of results: 17
+62.210.244.184  Title: IVRE Web UI                                SSL:                                              AS: AS12876, (12876)                    Loc: FR /                     OS: N/A        Tags: http, ssh
+206.128.155.79  Title: IVRE Web UI                                SSL:                                              AS: CENTURYLINK-LEGACY-SAVVIS (3561)    Loc: US / Chesterfield        OS: Ubuntu     Tags: http
+138.201.231.148 Title: IVRE Web UI                                SSL: pms.pditsolutions.eu                         AS: HETZNER-AS, (24940)                 Loc: DE /                     OS: N/A        Tags: http, ssh, https
+140.86.51.236   Title: IVRE Web UI                                SSL:                                              AS: NETDYNAMICS (7160)                  Loc: FR / Paris               OS: Debian     Tags: http, ssh
+5.196.197.153   Title: IVRE Web UI                                SSL:                                              AS: OVH, (16276)                        Loc: FR /                     OS: Ubuntu     Tags: http, ssh
+206.128.155.47  Title: IVRE Web UI                                SSL:                                              AS: CENTURYLINK-LEGACY-SAVVIS (3561)    Loc: US / Chesterfield        OS: Ubuntu     Tags: http
+45.77.23.20     Title: IVRE Web UI                                SSL:                                              AS: AS-CHOOPA (20473)                   Loc: US / Matawan             OS: Ubuntu     Tags: http, ssh
+66.85.60.134    Title: IVRE Web UI                                SSL:                                              AS: 5THCOLUMN (394205)                  Loc: US /                     OS: Ubuntu     Tags: http
+45.32.217.177   Title: IVRE Web UI                                SSL:                                              AS: AS-CHOOPA (20473)                   Loc: US / Atlanta             OS: Ubuntu     Tags: http, ssh
+52.37.12.137    Title: IVRE Web UI                                SSL:                                              AS: AMAZON-02 (16509)                   Loc: US / Wilmington          OS: N/A        Tags: http, ssh
+209.126.161.62  Title: IVRE Web UI                                SSL:                                              AS: CARINET (10439)                     Loc: US / San Diego           OS: Debian     Tags: http
+45.32.35.133    Title: IVRE Web UI                                SSL:                                              AS: AS-CHOOPA (20473)                   Loc: US / Matawan             OS: Ubuntu     Tags: http, ssh
+138.197.35.240  Title: IVRE Web UI                                SSL:                                              AS: DIGITALOCEAN-ASN (14061)            Loc: US / Wilmington          OS: N/A        Tags: http, ssh
+52.32.21.139    Title: IVRE Web UI                                SSL:                                              AS: AMAZON-02 (16509)                   Loc: US / Wilmington          OS: Ubuntu     Tags: http, ssh
+174.138.79.85   Title: IVRE Web UI                                SSL:                                              AS: DIGITALOCEAN-ASN (14061)            Loc: US / San Diego           OS: Ubuntu     Tags: http, ssh
+103.78.158.19   Title: IVRE Web UI                                SSL:                                              AS: DIGITALCORPORATION-AS-AP (135671)   Loc:  /                       OS: N/A        Tags: http
+13.58.144.246   Title: IVRE Web UI                                SSL:                                              AS: AMAZON-02 (16509)                   Loc: US / Norwalk             OS: N/A        Tags: http, ssh
+```
+
 ### Retrieve the hosts that have SSL certificate with organization 'Whatsapp'
 
 ```
