@@ -220,6 +220,13 @@ Number of results: 456
 158.85.5.217    Title: N/A                                        SSL: *.whatsapp.net + *.whatsapp.net              AS: SOFTLAYER (36351)                   Loc: US / Chantilly           OS: N/A        Tags: https
 177.75.8.102    Title: N/A                                        SSL: *.whatsapp.net + *.whatsapp.net              AS: Networld Provedor e Servicos de Internet Ltda, BR (28178)Loc: BR /                     OS: N/A        Tags: https
 ```
+### Highlight which keys are matching string for a specific search query
+
+Let's have a look at SAP ABAP servers answering an error on their frontpage and let's highlight an interesting keyword:
+
+`censys_io.py -t "Logon Error Message" -S ABAP -m "ICF-nf-http" --limit 10`
+
+![](doc/match.png)
 
 ### Printing raw JSON record from database for a specific request
 ```
