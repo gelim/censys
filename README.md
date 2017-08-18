@@ -4,6 +4,7 @@ and is inteded to make censys queries quick & easy from command-line.
 
 - [Requirements](#requirements)
 - [Usage](#usage)
+  * [Note about looking for substrings](#note-about-looking-for-substrings)
 - [Examples](#examples)
   * [Generic query IP or host (look for anything matching the string in Censys indexed data)](#generic-query-ip-or-host-look-for-anything-matching-the-string-in-censys-indexed-data)
   * [Count how much web servers have 'SAP' in their `Server` header](#count-how-much-web-servers-have-sap-in-their-server-header)
