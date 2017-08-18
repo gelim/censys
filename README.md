@@ -23,7 +23,7 @@ API key and secret at https://censys.io/account
 Important note: your queries will be throttled.
 What is allowed is 0.2 tokens/second (60.0 per 5 minute bucket).
 
-`$ sudo pip install censys`
+`$ sudo pip install -r requirements.txt`
 
 ## Usage
 
