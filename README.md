@@ -120,7 +120,7 @@ tokenizer but something is not working as expecting.
 So you need to be very careful when looking for substrings and try
 different methods by either doing wildcards search (beware that Censys
 disable beginning search term with a wildcard) or by using pure regexp
-like "/.*Whatsapp.*/".
+like `/.*Whatsapp.*/`.
 
 ## Examples
 ### Generic query IP or host (look for anything matching the string in Censys indexed data)
