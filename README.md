@@ -95,6 +95,33 @@ For a quick and dirty test, you can build queries like:
 - `key:[200 TO 300]` (int range queries)
 - `key:192.168.0.0/24` (IP range query)
 
+### Note about looking for substrings
+
+Censys is backed by Elasticsearch, plus they filter the requests for
+performance reasons.
+
+If you want to look for all values beginning with the string
+`Whatsapp`, you can look for `key:Whatsapp*`. If you look only for
+`key:Whatsapp` you will get only fields that where analyzed (strings
+cut into pieces depending on language rules, specific tokens, etc.)
+and contains facets with the exact string "Whatsapp".
+
+An example to highlight that is the values stored in the key
+`443.https.tls.certificate.parsed.subject.organization`. By looking for `443.https.tls.certificate.parsed.subject.organization:Whatsapp` you will find ~90 results. Those will be entries with values:
+- `WhatsApp Inc.`
+- `WhatsApp Company Ltd`
+- `WhatsApp`
+
+But you will miss the values `WhatsApp, Inc.` that has ~350
+entries. If we check censys.io "Data definitions" this field should be
+analyzed as a "String" and the comma should be removed by the
+tokenizer but something is not working as expecting.
+
+So you need to be very careful when looking for substrings and try
+different methods by either doing wildcards search (beware that Censys
+disable beginning search term with a wildcard) or by using pure regexp
+like "/.*Whatsapp.*/".
+
 ## Examples
 ### Generic query IP or host (look for anything matching the string in Censys indexed data)
 
@@ -153,8 +180,8 @@ count           raw
 ### Retrieve the hosts that have SSL certificate with organization 'Whatsapp'
 
 ```
-$ censys_io.py --cert-org Whatsapp --limit 10
-Number of results: 408
+$ censys_io.py --cert-org "Whatsapp*" --limit 10
+Number of results: 456
 104.236.63.164  Title: phpinfo()                                  SSL: web.whatsapp.com                             AS: DIGITALOCEAN-ASN-NY3 (393406)       Loc: US / New York            OS: Ubuntu     Tags: http, ssh, https
 169.55.74.44    Title: N/A                                        SSL: *.whatsapp.net + *.whatsapp.net              AS: SOFTLAYER (36351)                   Loc: US /                     OS: N/A        Tags: https
 169.55.69.140   Title: N/A                                        SSL: *.whatsapp.net + *.whatsapp.net              AS: SOFTLAYER (36351)                   Loc: US /                     OS: N/A        Tags: https

@@ -318,8 +318,8 @@ if __name__ == '__main__':
     parser.add_argument('-b', '--html-body', default=None, help='Filter on html body content')
     parser.add_argument('-T', '--tags', default=None, help='Filter on specific tags. E.g: -T tag1,tag2,... (use keyword \'list\' to list usual tags')
 
-    parser.add_argument('--api_id', default=None, help='Censys API ID (optional if no env defined')
-    parser.add_argument('--api_secret', default=None, help='Censys API SECRET (optional if no env defined')
+    parser.add_argument('--api_id', default=None, help='Censys API ID (optional if no env defined)')
+    parser.add_argument('--api_secret', default=None, help='Censys API SECRET (optional if no env defined)')
     parser.add_argument('-d', '--debug', action='store_true', help='Debug informations')
     parser.add_argument('-v', '--verbose', action='store_true', help='Print raw JSON records')
     parser.add_argument('-l', '--limit', default=float('inf'), help='Limit to N results')
