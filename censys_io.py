@@ -74,7 +74,7 @@ Censys query via command line
 
 def print_tsv(res):
     bl_filter_fields = ["80.http.get.body"]
-    final_line = str()
+    final_line = str.encode('utf-8')
     for k in filter_fields:
         if k not in bl_filter_fields:
             v = res.get(k, "")
@@ -84,7 +84,7 @@ def print_tsv(res):
                 v = str(v)
             if ';' in v: v = v.replace('\t', ' ')
             final_line += v + "\t"
-    print final_line.strip("\t")
+    print final_line.encode('utf-8').strip('\t')
 
 # res = complete dict from IPv4 search with generic info
 def print_short(res):
