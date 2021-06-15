@@ -1,2 +1,2 @@
 colorama
-censys
+censys==0.0.8
